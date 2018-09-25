@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function [oup]=conventional(inp, kes, stride, dilation, padding)
 % input, kernel size, stride, biases, dilation, padding 
 
@@ -35,4 +36,19 @@ while walk + dilation*kesize <= datad
     walk = walk + stride;
 end
 
+=======
+function [oup]=conventional(inp, kes, stride, biases, dilation, padding)
+% input, kernel size, stride, biases, dilation, padding 
+assert(nargin ~= 6, 'Lack of parameters')
+
+embedding = net(X);
+a = convn
+trainsferLayer = net.Layers
+a = [4 5; 2 6];
+b = gpuArray(a);
+c = b^3;
+ans = gather(c);
+net = newff()
+disp(ans)
+>>>>>>> c37c00ce5982e3ae683fa806b6555b5e823fdcb6
 end
