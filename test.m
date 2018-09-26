@@ -71,7 +71,7 @@ layers = [ ...
 % Create the network training options. Set the initial learn rate to 0.001.
 % To reduce training time, lower the value of |'MaxEpochs'|.
 options = trainingOptions('sgdm','InitialLearnRate',0.001, ...
-    'MaxEpochs',15,'Plots','training-progress');
+    'MaxEpochs',15,'MiniBatchSize',300,'Plots','training-progress');
 
 %%
 % Create the network using |trainNetwork|. This command uses a compatible

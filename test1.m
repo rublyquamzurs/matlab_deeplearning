@@ -19,12 +19,13 @@ classdef test1
             % Layer constructor function goes here
         end
 
-        function loss = forwardLoss(a)
+        function loss = forwardLoss(layer, a)
+            layer.backwardLoss()
             disp('forwardloss')
         end
         
-        function dLdX = backwardLoss(a)
-            forwardLoss()
+        function dLdX = backwardLoss(layer, a)
+%             layer.forwardLoss()
             disp('backwardloss')
         end
     end

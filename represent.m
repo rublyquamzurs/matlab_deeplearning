@@ -1,4 +1,5 @@
 function [embedding]=represent(X,Y,Loc,K,L,varargin)
+%%
 % paras.num_classes = 13;
 % paras.embedding_size = 1024;
 % paras.max_epoch = 500;
@@ -33,6 +34,7 @@ layers = [
     batchNormalizationLayer
     TriplteLossLayer];
 
+
 options = trainingOptions('sgdm',...
     'MaxEpochs',3, ...
     'ValidationData',valDigitData,...
@@ -51,12 +53,21 @@ end
 
 
 function select_triplets(embeddings, paras)
-
-
+%% Select the triplets for training
+sample_mul_all = pdist2();
+max_trips = 0;
+triplets = [];
+vilength = size(vectors_index, 1);
+for i = 1:vilength
+    a_num = 1:size(anchors(i))
+    one_floor_arg = bf_gallery(bf_mark(i)).rss
+    one_loc
+    shuffle(triplets)
+end
 end
 
 function train(net, layers, paras, traindata)
-
+%%
 embeddings = net(traindata.data, layers, paras);
 
 triplets = select_triplets(embeddings, paras)

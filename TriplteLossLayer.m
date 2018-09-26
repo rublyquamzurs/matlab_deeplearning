@@ -1,32 +1,73 @@
-classdef TriplteLossLayer < nnet.layer.RegressionLayer
-      
-    
-    % Define Triplet loss layer for classification 
-    % Written by roy Talman 2/1/2018 , 
-    % Email adress: roytalman@gmail.com
-    % GitHub: https://github.com/roytalman/TripletLoss.git
-    % Based on the article "FaceNet: A Unified Embedding for Face Recognition
-    % and Clustering"  Google Inc 2015
+classdef TriplteLossLayer < nnet.internal.cnn.layer.RegressionLayer
     properties
-        % (Optional) Layer properties
-
-        % Layer properties go here
+        LearnableParameters = nnet.internal.cnn.layer.learnable.PredictionLearnableParameter.empty();
+        
+        % Name (char array)   A name for the layer
+        Name
+        
+        % ResponseNames (cellstr)   The names of the responses
+        ResponseNames
+    end
+    
+    properties (Constant)
+        % DefaultName   Default layer's name.
+        DefaultName = 'regressionoutput'
+    end
+    
+    properties (SetAccess = private)
+        % HasSizeDetermined   True for layers with size determined.
+        HasSizeDetermined = true
     end
  
     methods
-        function layer = TriplteLossLayer(Name)           
-            % (Optional) Create a myClassificationLayer
-            % Set layer name
-            if nargin == 1
-                layer.Name = Name;
-            end
-
-            % Set layer description
-            layer.Description = 'Triplte_loss_layer';
-            % Layer constructor function goes here
+        function this = TriplteLossLayer(name)
+            this.Name = name;
+            this.ResponseNames = {};
+        end
+        
+        function outputSize = forwardPropagateSize(~, inputSize)
+            % forwardPropagateSize  Output the size of the layer based on
+            % the input size
+            outputSize = inputSize;
+        end
+        
+        function this = inferSize(this, ~)
+            
+            % no-op since this layer has nothing that can be inferred
+        end
+        
+        function tf = isValidInputSize(~, inputSize)
+            % isValidInputSize   Check if the layer can accept an input of
+            % a certain size.
+            tf = numel(inputSize)==3;
+        end
+        
+        function this = initializeLearnableParameters(this, ~)
+            
+            % no-op since there are no learnable parameters
+        end
+        
+        function this = prepareForTraining(this)
+            this.LearnableParameters = nnet.internal.cnn.layer.learnable.TrainingLearnableParameter.empty();
+        end
+        
+        function this = prepareForPrediction(this)
+            this.LearnableParameters = nnet.internal.cnn.layer.learnable.PredictionLearnableParameter.empty();
+        end
+        
+        function this = setupForHostPrediction(this)
+        end
+        
+        function this = setupForGPUPrediction(this)
+        end
+        
+        function this = setupForHostTraining(this)
+        end
+        
+        function this = setupForGPUTraining(this)
         end
 
-        function loss = forwardLoss(layer, Y, T)
+        function loss = forwardLoss(this, Y, T)
             % Return the loss between the predictions Y and the 
             % training targets T
             %
@@ -52,11 +93,11 @@ classdef TriplteLossLayer < nnet.layer.RegressionLayer
             NegDiff = sqrt(sum(squeeze(Anchor_Norm-Neg_Norm).^2));
             % Layer forward loss function goes here
             loss = 0.2 -   median( NegDiff )+( median( PosDiff )  ) ;
-%              disp(['pos dist: ' num2str(median( PosDiff  )) ' ,  Neg dist: ' num2str(median(NegDiff)) ' ,  Diff: ' num2str(median(NegDiff)-median(PosDiff))])
+           % disp(['pos dist: ' num2str(median( PosDiff  )) ' ,  Neg dist: ' num2str(median(NegDiff)) ' ,  Diff: ' num2str(median(NegDiff)-median(PosDiff))])
             loss = max(0,loss);
         end
         
-        function dLdX = backwardLoss(layer, Y, T)
+        function dLdX = backwardLoss(this, Y, T)
             % Backward propagate the derivative of the loss function
             %
             % Inputs:
@@ -67,20 +108,20 @@ classdef TriplteLossLayer < nnet.layer.RegressionLayer
             % Output:
             %         dLdX  - Derivative of the loss with respect to the input X        
             N = size(Y,4);
-             % Sort triplte to anchor  ,Positive and Negative
+            % Sort triplte to anchor  ,Positive and Negative
             Anchor = Y(:,:,:,1:3:end) ;
             Pos = Y(:,:,:,2:3:end) ;
             Neg = Y(:,:,:,3:3:end) ;
             
             
-            % Chack if positive distanse bigger then negative to set
+            % Check if positive distanse bigger then negative to set
             % grdient decsent direction
             DiffTriplte1 =  sign( Neg - Pos );
             DiffTriplte2 =  sign( Pos - Anchor );
             DiffTriplte3 =  sign( Neg - Anchor );
             
             DiffTriplte = gpuArray(zeros(size(DiffTriplte1).*([1 1 1 3])));
-             % Duplicate three times direction
+            % Duplicate three times direction
             DiffTriplte(:,:,:,1:size(DiffTriplte1,4)) = DiffTriplte1 ;
             DiffTriplte(:,:,:,(1:size(DiffTriplte1,4)) + size(DiffTriplte1,4)) = DiffTriplte2 ;
             DiffTriplte(:,:,:,(1:size(DiffTriplte1,4)) + 2*size(DiffTriplte1,4)) = DiffTriplte3 ;

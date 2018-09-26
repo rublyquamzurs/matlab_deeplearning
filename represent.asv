@@ -30,8 +30,9 @@ layers = [
     reluLayer
     
     fullyConnectedLayer(10)
-    softmaxLayer
-    classificationLayer];
+    batchNormalizationLayer
+    TriplteLossLayer];
+
 
 options = trainingOptions('sgdm',...
     'MaxEpochs',3, ...
@@ -41,17 +42,43 @@ options = trainingOptions('sgdm',...
     'Plots','training-progress');
 
 net = trainNetwork(trainDigitData,layers,options);
-
+predict
 predictedLabels = classify(net,valDigitData);
 valLabels = valDigitData.Labels;
 
-accuracy = sum(predictedLabels == valLabels)/numel(valLabels)
+accuracy = sum(predictedLabels == valLabels)/numel(valLabels);
 
 end
 
 
 function select_triplets(embeddings, paras)
+%% Select the triplets for training
 
+    max_trips = 0
+    triplets = []
+    for i, anchors in enumerate(vectors_index):
+        a_num = np.arange(anchors.shape[0])
+        one_floor_arg = bf_gallery[bf_mark[i]].rss
+        one_loc = sample_mul_all[anchors[:, 0]]
+        negative_cannot_select = np.where(label_dist[anchors[:, 0]] < 400)
+        candidate_loc = positive_points_candidate[i]
+        candidate_rss = [vectors_index[v] for v in candidate_loc]
+        for p_loc in candidate_rss:
+            pos_m = one_loc[:, p_loc[:, 0]]
+            pos_idx_av = np.argmax(pos_m, axis=1)
+            pos_idx_v = [pos_m[m, pos_idx_av[m]] for m in a_num]
+            one_loc[:, p_loc[:, 0]] = np.inf
+            neg_dists_m = one_loc - np.reshape(pos_idx_v, (-1, 1))
+            neg_dists_m[negative_cannot_select] = np.inf
+            neg_dists_mi = neg_dists_m[:, one_floor_arg]
+            neg_av = np.argmin(neg_dists_mi, axis=1)
+            neg_v = [neg_dists_mi[m, neg_av[m]] for m in a_num]
+            for j, diff in enumerate(neg_v):
+                max_trips += 1
+                if diff < alpha:
+                    triplets.append([anchors[j, 0], p_loc[pos_idx_av[j], 0], one_floor_arg[neg_av[j]]])
+
+    np.random.shuffle(triplets)
 
 end
 
@@ -71,43 +98,4 @@ end
 
 
 function evaluate(net, layers, paras, validationdata)
-
-=======
-function [embedding]=represent(X,Y,Loc,K,L,varargin)
-
-options.K=K;                 % number of nearest neighbours
-options.tol = 1e-5;         % tolerance for convergence
-options.verbose=true;   % screen output
-options.depth=4;           % tree depth
-options.ntrees=200;      % number of boosted trees
-options.lr=1e-3;             % learning rate for gradient boosting
-options.no_potential_impo=inf;
-options.buildlayer = @buildlayer_sqrimpurity_openmp_multi;
-options.XVAL=[];
-options.YVAL=[];
-options.LVAL=[];
-options.XFULL=[];
-options.YFULL=[];
-options.LFULL=[];
-options.valSetT = 1;
-options.Ki = 50;
-options=extractpars(varargin,options);
-
-if ~isempty(options.XFULL)
-    pred_full = options.XFULL;
-end
-outp = @normrnd(inp, mu, sigma);
-weight = struct{'wc1', [3, 1, 10], 'wc2', [3, 10, 20], 'wc3', [9060, 1024], 'ce', [1024, num_classes], 'rp', [1024, embedding_size]};
-biases = struct{'bc1', 10, 'bc2', 20, 'bc3', 1024, 'ce', num_classes, 'rp', embedding_size};
-layers.wc1 = normrnd(0, )
-snapshot
-initwb
-
-convolution2dLayer
-
-
-net = AlexNet_1d();
-
-
->>>>>>> c37c00ce5982e3ae683fa806b6555b5e823fdcb6
 end
