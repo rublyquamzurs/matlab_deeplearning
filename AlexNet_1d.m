@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 function [embedding]=AlexNet_1d(inputs, varargin)
 % Default parameter.
 if nargin < 4
@@ -25,7 +24,6 @@ function outp=random_normal(inp, mu, sigma)
 %
 outp = normrnd(inp, mu, sigma);
 
-=======
 function [embedding]=AlexNet_1d(inputs, varargin)
 % Default parameter.
 
@@ -50,5 +48,4 @@ function outp=random_normal(inp, mu, sigma)
 %
 outp = normrnd(inp, mu, sigma);
 
->>>>>>> c37c00ce5982e3ae683fa806b6555b5e823fdcb6
 end
